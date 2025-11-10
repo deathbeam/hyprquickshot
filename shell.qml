@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Widgets
 import Quickshell.Io
+import QtCore
 
 import "src"
 
@@ -13,6 +14,12 @@ FreezeScreen {
     visible: false
 
     property var activeScreen: null
+
+    Settings {
+        id: settings
+        category: "Hyprquickshot"
+        property bool saveToDisk: true 
+    }
 
     Connections {
         target: Hyprland
@@ -42,7 +49,6 @@ FreezeScreen {
     property string tempPath
 
     property string mode: "region"
-    property bool saveToDisk: true
 
     Shortcut {
         sequence: "Escape"
@@ -89,7 +95,7 @@ FreezeScreen {
         const now = new Date()
         const timestamp = Qt.formatDateTime(now, "yyyy-MM-dd_hh-mm-ss")
 
-        const outputPath = root.saveToDisk ? `${picturesDir}/screenshot-${timestamp}.png` : root.tempPath
+        const outputPath = settings.saveToDisk ? `${picturesDir}/screenshot-${timestamp}.png` : root.tempPath
 
         screenshotProcess.command = ["sh", "-c",
             `magick "${tempPath}" -crop ${scaledWidth}x${scaledHeight}+${scaledX}+${scaledY} "${outputPath}" && ` +
@@ -208,8 +214,8 @@ FreezeScreen {
 
 				Switch {
 					id: saveSwitch
-					checked: root.saveToDisk
-					onCheckedChanged: root.saveToDisk = checked
+					checked: settings.saveToDisk
+					onCheckedChanged: settings.saveToDisk = checked
 				}
 			}
 		}
